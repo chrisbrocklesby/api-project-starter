@@ -1,22 +1,32 @@
-const posts = require('../../models/posts');
+const posts = require('../../functions/posts');
 
 module.exports = async (request, response) => {
   try {
-    const postIndex = await posts.get();
+    const getPosts = await posts.read(request.query.limit, request.query.offset);
+
+    if (getPosts.success) {
+      return response
+        .status(200)
+        .json({
+          success: true,
+          message: null,
+          data: getPosts.data,
+        });
+    }
     return response
-      .status(200)
+      .status(404)
       .json({
-        status: 'success',
-        data: postIndex,
-        message: null,
+        success: false,
+        message: 'notFound',
+        data: null,
       });
   } catch (error) {
     return response
       .status(500)
       .json({
-        status: 'error',
-        data: null,
+        success: false,
         message: 'serverError',
+        data: null,
       });
   }
 };

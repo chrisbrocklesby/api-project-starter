@@ -2,12 +2,7 @@ const auth = require('../../functions/auth');
 
 module.exports = async (request, response) => {
   try {
-    const body = {
-      email: request.body.email || null,
-      password: request.body.password || null,
-    };
-
-    const login = await auth.login(body.email, body.password);
+    const login = await auth.login(request.body);
 
     if (login.success) {
       return response
@@ -15,7 +10,7 @@ module.exports = async (request, response) => {
         .json({
           success: true,
           message: 'loginSuccess',
-          data: login.data.token,
+          data: login.data,
         });
     }
     return response

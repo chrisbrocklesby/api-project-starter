@@ -1,7 +1,12 @@
 const repository = require('./repository');
 const { bcrypt, jwt, validator } = require('../../helpers');
 
-module.exports = async (email, password) => {
+module.exports = async (data) => {
+  const userData = {
+    email: data.email || null,
+    password: data.password || null,
+  };
+
   const rules = [{
     test: (rule) => rule.email && /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(rule.email),
     message: 'emailInvalid',
@@ -13,17 +18,17 @@ module.exports = async (email, password) => {
     message: 'passwordRequired',
   }];
 
-  const validate = validator.validate({ email, password }, rules);
+  const validate = validator.validate(userData, rules);
 
-  if (!validate.isValid) {
+  if (!validate.success) {
     return {
       success: false,
-      message: validate.errors,
+      message: validate.message,
       data: null,
     };
   }
 
-  const user = await repository.queryByEmail(email);
+  const user = await repository.queryByEmail(userData.email);
   if (!user) {
     return {
       success: false,
@@ -32,7 +37,7 @@ module.exports = async (email, password) => {
     };
   }
 
-  const passwordMatch = await bcrypt.compare(password, user.password);
+  const passwordMatch = await bcrypt.compare(userData.password, user.password);
   if (passwordMatch) {
     const token = jwt.sign({
       pk: user.pk,

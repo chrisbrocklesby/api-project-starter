@@ -1,7 +1,15 @@
 const repository = require('./repository');
 const { bcrypt, validator, uuid } = require('../../helpers');
 
-module.exports = async (pk, email, password) => {
+module.exports = async (data) => {
+  const userData = {
+    pk: data.pk || uuid(),
+    email: data.email || null,
+    password: data.password || null,
+    role: 1,
+    created: new Date(),
+  };
+
   const rules = [{
     test: (rule) => rule.pk && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(rule.pk),
     message: 'pkFormat',
@@ -19,18 +27,18 @@ module.exports = async (pk, email, password) => {
     message: 'passwordFormat',
   }];
 
-  const validate = validator.validate({ pk, email, password }, rules);
+  const validate = validator.validate(userData, rules);
 
-  if (!validate.isValid) {
+  if (!validate.success) {
     return {
       success: false,
-      message: validate.errors,
+      message: validate.message,
       data: null,
     };
   }
 
-  const user = await repository.queryByEmail(email);
-  if (user) {
+  const userCheck = await repository.queryByEmail(userData.email);
+  if (userCheck) {
     return {
       success: false,
       message: 'userExists',
@@ -38,15 +46,11 @@ module.exports = async (pk, email, password) => {
     };
   }
 
-  const register = await repository.insert({
-    pk: pk || uuid(),
-    email,
-    password: await bcrypt.hash(password, 10),
-    role: 1,
-    created: new Date(),
-  });
+  userData.password = await bcrypt.hash(userData.password, 10);
 
-  if (register) {
+  const userRegister = await repository.insert(userData);
+
+  if (userRegister) {
     return {
       success: true,
       message: 'registerSuccess',

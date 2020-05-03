@@ -3,14 +3,29 @@ const database = require('../../database');
 module.exports = {
   insert(data) {
     return database.promise()
-      .query('INSERT INTO posts set ?', [data])
+      .query('INSERT INTO posts SET ?', [data])
       .then(([rows]) => rows)
       .catch((error) => { throw new Error(error); });
   },
 
-  queryAll() {
+  update(pk, data) {
     return database.promise()
-      .query('SELECT * FROM posts')
+      .query('UPDATE posts SET ? WHERE pk = ?', [data, pk])
+      .then(([rows]) => rows)
+      .catch((error) => { throw new Error(error); });
+  },
+
+  delete(pk) {
+    return database.promise()
+      .query('DELETE FROM posts WHERE pk = ?', [pk])
+      .then(([rows]) => rows)
+      .catch((error) => { throw new Error(error); });
+  },
+
+
+  queryAll(limit, offset) {
+    return database.promise()
+      .query('SELECT * FROM posts LIMIT ? OFFSET ?', [limit || 100, offset || 0])
       .then(([rows]) => rows)
       .catch((error) => { throw new Error(error); });
   },

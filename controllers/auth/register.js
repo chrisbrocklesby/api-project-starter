@@ -2,11 +2,7 @@ const auth = require('../../functions/auth');
 
 module.exports = async (request, response) => {
   try {
-    const register = await auth.register({
-      pk: request.body.pk || null,
-      email: request.body.email || null,
-      password: request.body.password || null,
-    });
+    const register = await auth.register(request.body);
 
     if (register.success) {
       return response
