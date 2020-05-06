@@ -14,4 +14,16 @@ module.exports = {
       data: null,
     };
   },
+
+  isPk(data) {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data);
+  },
+
+  isEmail(data) {
+    return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(data);
+  },
+
+  isPassword(data) {
+    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/.test(data);
+  },
 };

@@ -1,6 +1,6 @@
 const posts = require('../../functions/posts');
 
-module.exports = async (request, response) => {
+module.exports = async (request, response, next) => {
   try {
     const updatePost = await posts.update(request.params.pk, request.body);
 
@@ -8,25 +8,13 @@ module.exports = async (request, response) => {
       return response
         .status(200)
         .json({
-          success: true,
+          status: 'success',
           message: 'updated',
           data: updatePost.data,
         });
     }
-    return response
-      .status(400)
-      .json({
-        success: false,
-        message: updatePost.message,
-        data: null,
-      });
+    return next({ statusCode: 400, status: 'fail', message: updatePost.message });
   } catch (error) {
-    return response
-      .status(500)
-      .json({
-        success: false,
-        message: 'serverError',
-        data: null,
-      });
+    return next(error);
   }
 };

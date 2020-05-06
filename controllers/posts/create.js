@@ -1,6 +1,6 @@
 const posts = require('../../functions/posts');
 
-module.exports = async (request, response) => {
+module.exports = async (request, response, next) => {
   try {
     const post = await posts.create(request.body);
 
@@ -8,26 +8,13 @@ module.exports = async (request, response) => {
       return response
         .status(200)
         .json({
-          success: true,
-          message: 'postSuccess',
+          status: 'success',
+          message: 'created',
           data: null,
         });
     }
-
-    return response
-      .status(400)
-      .json({
-        success: false,
-        message: post.message,
-        data: null,
-      });
+    return next({ statusCode: 400, status: 'fail', message: post.message });
   } catch (error) {
-    return response
-      .status(500)
-      .json({
-        success: false,
-        message: 'serverError',
-        data: null,
-      });
+    return next(error);
   }
 };

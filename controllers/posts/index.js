@@ -1,6 +1,6 @@
 const posts = require('../../functions/posts');
 
-module.exports = async (request, response) => {
+module.exports = async (request, response, next) => {
   try {
     const getPosts = await posts.read(request.query.limit, request.query.offset);
 
@@ -8,25 +8,13 @@ module.exports = async (request, response) => {
       return response
         .status(200)
         .json({
-          success: true,
+          status: 'success',
           message: null,
           data: getPosts.data,
         });
     }
-    return response
-      .status(404)
-      .json({
-        success: false,
-        message: 'notFound',
-        data: null,
-      });
+    return next();
   } catch (error) {
-    return response
-      .status(500)
-      .json({
-        success: false,
-        message: 'serverError',
-        data: null,
-      });
+    return next(error);
   }
 };

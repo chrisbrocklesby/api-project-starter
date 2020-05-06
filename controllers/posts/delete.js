@@ -1,6 +1,6 @@
 const posts = require('../../functions/posts');
 
-module.exports = async (request, response) => {
+module.exports = async (request, response, next) => {
   try {
     const deletePost = await posts.deleted(request.params.pk);
 
@@ -8,25 +8,13 @@ module.exports = async (request, response) => {
       return response
         .status(200)
         .json({
-          success: true,
+          status: 'success',
           message: 'deleted',
-          data: deletePost.data,
+          data: null,
         });
     }
-    return response
-      .status(400)
-      .json({
-        success: false,
-        message: deletePost.message,
-        data: null,
-      });
+    return next({ statusCode: 400, status: 'fail', message: deletePost.message });
   } catch (error) {
-    return response
-      .status(500)
-      .json({
-        success: false,
-        message: 'serverError',
-        data: null,
-      });
+    return next(error);
   }
 };
